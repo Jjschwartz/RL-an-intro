@@ -1,6 +1,9 @@
 """
-This module contains the agent parent class and implementations of the Greedy
-and epsilon-greedy agents for the k armed bandit problem
+This module contains agent implementations for the k armed bandit problem.
+
+Agents implemented:
+1. Greedy using sample-average method
+2. Epsilon-Greedy using sample-average method
 """
 import numpy as np
 
@@ -17,7 +20,7 @@ class GreedyAgent(object):
         int timesteps : number of timesteps to run each problem for
         int num_problems : number of different problems to run agent on
         """
-        self.environment = environment
+        self.env = environment
         self.timesteps = timesteps
         self.num_problems = num_problems
 
@@ -38,7 +41,7 @@ class GreedyAgent(object):
         optimal_actions_perc = np.zeros(self.timesteps)
 
         for p in range(self.num_problems):
-            rewards, optimal_actions = self.perform_run()
+            rewards, optimal_actions = self.run_episode()
             average_rewards += rewards
             optimal_actions_perc += optimal_actions
 
@@ -50,9 +53,9 @@ class GreedyAgent(object):
 
         return average_rewards, optimal_actions_perc
 
-    def perform_run(self):
+    def run_episode(self):
         """
-        Perform a run on a single problem
+        Run a full episode of k-armed bandit environment
 
         Returns:
         --------
@@ -60,9 +63,9 @@ class GreedyAgent(object):
         ndarray optimal_actions : whether or not optimal action was performed
             for each timestep
         """
-        problem = self.environment.get_next_problem()
-        action_space = self.environment.get_action_space()
-        optimal_action = problem.get_optimal_action()
+        self.env.reset()
+        action_space = self.env.action_space
+        optimal_action = self.env.optimal_action
 
         rewards = np.zeros(self.timesteps)
         optimal_actions = np.zeros(self.timesteps)
@@ -72,7 +75,8 @@ class GreedyAgent(object):
 
         for t in range(self.timesteps):
             a = self.choose_action(q_table)
-            rewards[t] = problem.perform_action(a)
+            o, r, done, _ = self.env.step(a)
+            rewards[t] = r
             optimal_actions[t] = int(a == optimal_action)
             a_count[a] += 1
             q_table[a] = self.update_value(a_count[a], rewards[t], q_table[a])
@@ -100,7 +104,7 @@ class GreedyAgent(object):
     def update_value(self, a_count, reward, q_value):
         """
         Update the action value estimate for a given action based on gained
-        reward.
+        reward using the sample-average method.
 
         Arguments:
         ----------

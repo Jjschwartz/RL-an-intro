@@ -1,15 +1,17 @@
 """
-The main file that runs the experiments
+Experiments using sample-average greedy and epsilon-greedy agents on the
+k-armed bandit environment.
 """
-from env import KArmedBanditEnv
-from agents import GreedyAgent
-from agents import EpsilonGreedyAgent
+from env.k_armed_bandit import KArmedBandit
+from agents.k_armed_bandit_agents import GreedyAgent
+from agents.k_armed_bandit_agents import EpsilonGreedyAgent
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Experiment parameters
 K = 10
-TIMESTEPS = 5000
-NUM_PROBLEMS = 1000
+TIMESTEPS = 1000
+NUM_PROBLEMS = 200
 EPSILONS = [0.1, 0.01]
 
 
@@ -32,7 +34,7 @@ def plot_stuff(rewards, optimal_actions):
 
 
 def main():
-    environment = KArmedBanditEnv(K)
+    environment = KArmedBandit(K, TIMESTEPS)
     greedy_agent = GreedyAgent(environment, TIMESTEPS, NUM_PROBLEMS)
     egreedy_agent0 = EpsilonGreedyAgent(environment, TIMESTEPS, NUM_PROBLEMS,
                                         EPSILONS[0])
