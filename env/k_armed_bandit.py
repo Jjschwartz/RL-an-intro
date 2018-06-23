@@ -39,6 +39,7 @@ class KArmedBandit(Env):
         self.timesteps = timesteps
         self.action_space = list(range(k))
         self.observation_space = True
+        self.reset()
 
     def reset(self):
         self.steps_taken = 0
