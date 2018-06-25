@@ -71,8 +71,9 @@ def plot_experiment_results(rewards, optimal_actions, timesteps):
     plt.show()
 
 
-def compare_agent_efficiency(agents, timesteps, episodes):
+def compare_agent_times(agents, timesteps, episodes):
     """
+    Displays the time taken to run a list of agents.
     """
 
     run_times = np.zeros(len(agents))

@@ -23,7 +23,7 @@ def main():
     greedy_agentV2 = GreedyAgentV2(environment, TIMESTEPS)
 
     agents = [greedy_agentV1, greedy_agentV2]
-    util.compare_agent_efficiency(agents, TIMESTEPS, EPISODES)
+    util.compare_agent_times(agents, TIMESTEPS, EPISODES)
 
 
 if __name__ == "__main__":
