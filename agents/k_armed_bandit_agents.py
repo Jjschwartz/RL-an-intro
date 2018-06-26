@@ -255,3 +255,78 @@ class EpsilonGreedyAgentV3(EpsilonGreedyAgentV2):
         constant step-size
         """
         return q_value + self.alpha * (reward - q_value)
+
+
+class UCBAgent(Agent):
+    """
+    Upper Confidence Bound Agent for the K-armed bandit environment using
+    constant step-size action-value estimates.
+    """
+
+    def __init__(self, environment, timesteps=1000, alpha=0.1, c=2):
+        """
+        Initialize a new UCB agent with given environment.
+
+        Arguments:
+        ----------
+        KArmedBanditEnv environment : the environment to solve
+        int timesteps : number of timesteps to run each problem for
+        float alpha : step-size for action-value estimate updates
+        float c : the confidence level parameter, c > 0
+        """
+        assert 0 < alpha and alpha <= 1
+        assert c > 0
+        self.env = environment
+        self.timesteps = timesteps
+        self.alpha = alpha
+        self.c = c
+
+    def run_episode(self):
+        self.env.reset()
+        action_space = self.env.action_space
+
+        rewards = np.zeros(self.timesteps)
+        optimal_actions = np.zeros(self.timesteps)
+
+        q_table = np.zeros(len(action_space))
+        a_n = np.zeros(len(action_space))
+
+        for t in range(self.timesteps):
+            a = self.choose_action(q_table, t, a_n)
+            o, r, done, info = self.env.step(a)
+            rewards[t] = r
+            optimal_actions[t] = int(a == info["optimal_action"])
+            a_n[a] += 1
+            q_table[a] = self.update_value(a_n[a], r, q_table[a])
+
+        return rewards, optimal_actions
+
+    def update_value(self, n, reward, q_value):
+        return q_value + self.alpha * (reward - q_value)
+
+    def choose_action(self, q_table, t, a_n):
+        """
+        Choose an action using UCB action selection
+
+        At = argmax_a [Qt(a) + c * sqrt{ [ln t] / [Nt(a)]}]
+
+        Arguments:
+        ----------
+        ndarray q_table : array of action value estimates in order of action
+            number
+        int t : current timestep
+        ndarray a_n : array of times each action has been chosen
+
+        Returns:
+        --------
+        int a : chosen action number
+        """
+        # check for any actions that have not been performed yet, a_n[a] = 0
+        if np.any(a_n == 0) or t == 0:
+            # select randomly amongst actions that have not been performed
+            max_a = np.argwhere(a_n == 0).flatten()
+            return np.random.choice(max_a)
+        else:
+            ucb_values = q_table + self.c * np.sqrt(np.log(t) / a_n)
+            max_a = np.argwhere(ucb_values == np.amax(ucb_values)).flatten()
+            return np.random.choice(max_a)
