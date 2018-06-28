@@ -1,21 +1,19 @@
-from env.k_armed_bandit import KArmedBandit
-from agents.k_armed_bandit_agents import EpsilonGreedyAgentV3
-from agents.k_armed_bandit_agents import UCBAgent
+from k_armed_bandit.env import KArmedBandit
+from k_armed_bandit.agents import EpsilonGreedyAgent
+from k_armed_bandit.agents import UCBAgent
 import experiments.util as util
 
 # Experiment parameters
 K = 10
 TIMESTEPS = 1000
-EPISODES = 2000
-EPSILON = 0.1
-ALPHA = 0.1
-C = 2
+EPISODES = 200
 
 
 def main():
     environment = KArmedBandit(K, TIMESTEPS)
-    egreedy = EpsilonGreedyAgentV3(environment, TIMESTEPS, EPSILON, ALPHA)
-    ucb = UCBAgent(environment, TIMESTEPS, ALPHA, C)
+    egreedy = EpsilonGreedyAgent(environment, TIMESTEPS,
+                                 method="constant-step")
+    ucb = UCBAgent(environment, TIMESTEPS, method="constant-step")
 
     rewards = {}
     opt_actions = {}

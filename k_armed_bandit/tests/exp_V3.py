@@ -3,26 +3,24 @@ Experiment with the k-armed bandit with nonstationary rewards using
 epsilon greedy agents running naive sample-average, incrementally computed
 sample-average methods and constant step-size methods for value-estimation.
 """
-from env.k_armed_bandit_V2 import KArmedBanditV2
-from agents.k_armed_bandit_agents import EpsilonGreedyAgentV1
-from agents.k_armed_bandit_agents import EpsilonGreedyAgentV2
-from agents.k_armed_bandit_agents import EpsilonGreedyAgentV3
-import util
+from k_armed_bandit.env import KArmedBandit
+from k_armed_bandit.agents import EpsilonGreedyAgent
+import experiments.util as util
 
 
 # Experiment parameters
 K = 10
 TIMESTEPS = 10000
-EPISODES = 1000
-EPSILON = 0.1
-ALPHA = 0.1
+EPISODES = 2000
 
 
 def main():
-    environment = KArmedBanditV2(K, TIMESTEPS)
-    egreedy1 = EpsilonGreedyAgentV1(environment, TIMESTEPS, EPSILON)
-    egreedy2 = EpsilonGreedyAgentV2(environment, TIMESTEPS, EPSILON)
-    egreedy3 = EpsilonGreedyAgentV3(environment, TIMESTEPS, EPSILON, ALPHA)
+    environment = KArmedBandit(K, TIMESTEPS, nonstationary=True)
+    egreedy1 = EpsilonGreedyAgent(environment, TIMESTEPS)
+    egreedy2 = EpsilonGreedyAgent(environment, TIMESTEPS,
+                                  method="inc-sample-average")
+    egreedy3 = EpsilonGreedyAgent(environment, TIMESTEPS,
+                                  method="constant-step")
 
     rewards = {}
     opt_actions = {}

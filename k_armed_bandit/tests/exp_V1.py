@@ -2,23 +2,25 @@
 Experiments using sample-average greedy and epsilon-greedy agents on the
 k-armed bandit environment.
 """
-from env.k_armed_bandit import KArmedBandit
-from agents.k_armed_bandit_agents import GreedyAgentV1
-from agents.k_armed_bandit_agents import EpsilonGreedyAgentV1
-import util
+from k_armed_bandit.env import KArmedBandit
+from k_armed_bandit.agents import GreedyAgent
+from k_armed_bandit.agents import EpsilonGreedyAgent
+import experiments.util as util
 
 # Experiment parameters
 K = 10
 TIMESTEPS = 1000
-EPISODES = 200
+EPISODES = 2000
 EPSILONS = [0.1, 0.01]
 
 
 def main():
     environment = KArmedBandit(K, TIMESTEPS)
-    greedy_agent = GreedyAgentV1(environment, TIMESTEPS)
-    egreedy_agent0 = EpsilonGreedyAgentV1(environment, TIMESTEPS, EPSILONS[0])
-    egreedy_agent1 = EpsilonGreedyAgentV1(environment, TIMESTEPS, EPSILONS[1])
+    greedy_agent = GreedyAgent(environment, TIMESTEPS)
+    egreedy_agent0 = EpsilonGreedyAgent(environment, TIMESTEPS,
+                                        epsilon=EPSILONS[0])
+    egreedy_agent1 = EpsilonGreedyAgent(environment, TIMESTEPS,
+                                        epsilon=EPSILONS[1])
 
     rewards = {}
     opt_actions = {}

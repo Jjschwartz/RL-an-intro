@@ -4,23 +4,23 @@ methods for action-value estimates in the k-armed bandit environment.
 
 Specifically comparing memory and time efficiency
 """
-from env.k_armed_bandit import KArmedBandit
-from agents.k_armed_bandit_agents import GreedyAgentV1
-from agents.k_armed_bandit_agents import GreedyAgentV2
-import util
+from k_armed_bandit.env import KArmedBandit
+from k_armed_bandit.agents import GreedyAgent
+import experiments.util as util
 
 # Experiment parameters
 K = 10
-TIMESTEPS = 1000
-EPISODES = 2000
+TIMESTEPS = 10000
+EPISODES = 200
 
 
 def main():
     environment = KArmedBandit(K, TIMESTEPS)
     # Naive sample-average method greedy agent
-    greedy_agentV1 = GreedyAgentV1(environment, TIMESTEPS)
+    greedy_agentV1 = GreedyAgent(environment, TIMESTEPS)
     # Incrementally computed sample-average method greedy agent
-    greedy_agentV2 = GreedyAgentV2(environment, TIMESTEPS)
+    greedy_agentV2 = GreedyAgent(environment, TIMESTEPS,
+                                 method="inc-sample-average")
 
     agents = [greedy_agentV1, greedy_agentV2]
     util.compare_agent_times(agents, TIMESTEPS, EPISODES)

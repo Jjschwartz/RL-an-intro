@@ -1,42 +1,33 @@
-"""
-From "Reinforcement Learning: An Introduction" Chapter 2.5
-
-Design and conduct an experiment to demonstrate the difficulties
-that sample-average methods have for nonstationary problems. Use a modified
-version of the 10-armed testbed in which all the q ∗ (a) start out equal and
-then take independent random walks (say by adding a normally distributed
-increment with mean zero and standard deviation 0.01 to all the q ∗ (a) on each
-step). Prepare plots like Figure 2.2 for an action-value method using sample
-averages, incrementally computed, and another action-value method using a
-constant step-size parameter, α = 0.1. Use ε = 0.1 and longer runs, say of
-10,000 steps.
-"""
-import numpy as np
 from env.core import Env
+import numpy as np
 
 
-class KArmedBanditV2(Env):
+class KArmedBandit(Env):
     """
-    The classic K-armed Bandit problem with a twist. The reward distribution
-    changes over time (nonstationary).
+    The classic Reinforcement Learning problem.
+    Introduce in chapter 2 of Reinforcement Learning: an Introduction.
 
     A single state environment where at each timestep the agent must choose one
     of k actions with the aim of maximizing the average reward over time. The
     rewards of each action are nondetermnistic but there is an optimal action
     which provides the highest reward over the long term.
 
-    Actual action-values, q*(a), start out equal and then take independent
-    walks.
+    Actual Action-values, q*(a), are chosen at random from a Gaussian
+    distribution with mean = 0 and variance = 1.
+
+    The reward, R, for any given action, A, at any timestep, t, is chosen
+    randomly from a Gaussian distribution with mean = q*(A) and variance = 1.
 
     An episode ends after a specified number of timesteps.
-    When the environment is reset, the action-values are reset are, so the
-    optimal action changes between episodes.
+    When the environment is reset, the action-values are again chosen at
+    random, so optimal action changes between episodes.
 
     This environment contains only a single state, so the agent observation is
     redundant and so is just True.
     """
 
-    def __init__(self, k=10, timesteps=1000):
+    def __init__(self, k=10, timesteps=1000, mean=0, var=1,
+                 nonstationary=False):
         """
         Initialize the environment.
 
@@ -44,23 +35,33 @@ class KArmedBanditV2(Env):
         ----------
         int k : number of actions in problems
         int timesteps : number of steps to perform per episode
+        float mean : the mean for action value distribution
+        floar var : the variance for the action value distribution
+        bool nonstationary : whether reward distribution changes over time
         """
         self.k = k
         self.timesteps = timesteps
+        self.mean = mean
+        self.var = var
         self.action_space = list(range(k))
         self.observation_space = True
+        self.nonstationary = nonstationary
         self.reset()
 
     def reset(self):
         self.steps_taken = 0
-        initial_q_value = np.random.normal()
-        self.action_values = np.full(self.k, initial_q_value)
+        if self.nonstationary:
+            random_val = np.random.normal(self.mean, self.var)
+            init_q_values = np.full(self.k, random_val)
+        else:
+            init_q_values = np.random.normal(self.mean, self.var, self.k)
+        self.action_values = init_q_values
         return self.observation_space
 
     def step(self, action):
         assert action >= 0 and action < self.k
         self.steps_taken += 1
-        reward = np.random.normal(loc=self.action_values[action], scale=1.0)
+        reward = np.random.normal(self.action_values[action], 1.0)
         done = self.steps_taken >= self.timesteps
         # optimal action may change each step, due to nonstationary reward
         optimal_action = np.argmax(self.action_values)

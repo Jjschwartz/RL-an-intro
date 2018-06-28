@@ -6,3 +6,5 @@ agents/__pycache__/
 env/__pycache__/
 
 experiments/__pycache__/
+
+k_armed_bandit/__pycache__/
